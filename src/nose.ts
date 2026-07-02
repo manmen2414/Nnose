@@ -60,6 +60,7 @@ export async function calcNowNose() {
     );
 
     const nowMillSecond = now.valueOf() - countStart.valueOf();
+    if (nowMillSecond < 0) return nose;
     const maxMillSecond = schoolStart.valueOf() - countStart.valueOf();
     nose += Math.floor((nowMillSecond / maxMillSecond) * 10000) / 10000;
   }
