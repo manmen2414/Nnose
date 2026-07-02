@@ -1,4 +1,4 @@
-import { dbInit, getNoseCount, isNotExistNoseCount, setNoseCount } from "./db";
+import { dbInit, isNotExistNoseCount, setNoseCount } from "./db";
 import {
   addNose,
   calcNowNose,
