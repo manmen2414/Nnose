@@ -1,7 +1,6 @@
 {
   "name": "nnose",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,5 +10,10 @@
   "devDependencies": {
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
-  }
+  },
+  "dependencies": {
+    "idb-keyval": "^6.2.6"
+  },
+  "author": "manmen2414",
+  "homepage": "https://github.com/manmen2414/Nnose"
 }

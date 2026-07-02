@@ -1,60 +1,92 @@
-import './style.css'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.ts'
+import { dbInit, getNoseCount, isNotExistNoseCount, setNoseCount } from "./db";
+import {
+  addNose,
+  calcNowNose,
+  getTodaySeated,
+  isNotSchoolStarted,
+  isRestDay,
+  seated,
+} from "./nose";
+import { numbersToKanji } from "./numbersToKanji";
+import "./style.css";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+async function setupPanel() {
+  if (await isNotExistNoseCount()) {
+    const panel: HTMLElement | null = document.querySelector("#setup-panel");
+    if (!panel) return;
+    panel.style.display = "block";
 
-<div class="ticks"></div>
+    const btn: HTMLButtonElement | null =
+      document.querySelector("#nose-submit");
+    if (!btn) return;
+    btn.onclick = () => {
+      const input: HTMLInputElement | null =
+        document.querySelector("#nose-input");
+      if (!input) return;
+      setNoseCount(parseInt(input.value));
+      location.reload();
+    };
+    await dbInit();
+    return true;
+  }
+  return false;
+}
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+let lastTickSchoolStarted = true;
+const todayRest = isRestDay();
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+async function tick() {
+  const noseElements: HTMLElement[] = Array.from(
+    document.querySelectorAll(".nose-value"),
+  );
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+  const nose = await calcNowNose();
+
+  let noseText = `${nose.toFixed(4)}`;
+  if (nose % 1 === 0) noseText = numbersToKanji(nose);
+
+  noseText += "瀬";
+
+  noseElements.forEach((v) => {
+    v.innerText = noseText;
+  });
+
+  if (todayRest) return;
+
+  const seatedBtn: HTMLButtonElement | null = document.querySelector("#seated");
+  if (!seatedBtn) return;
+  if (
+    // 学校始まってるかつ最後のtickでは学校始まってなかったかつ登校していない場合
+    !isNotSchoolStarted() &&
+    !lastTickSchoolStarted &&
+    !(await getTodaySeated())
+  ) {
+    addNose().then(() => seated());
+    seatedBtn.disabled = true;
+  }
+  lastTickSchoolStarted = !isNotSchoolStarted();
+}
+
+async function main() {
+  if (await setupPanel()) return;
+  setInterval(tick);
+
+  const todaySeated = await getTodaySeated();
+  const schoolStarted = !isNotSchoolStarted();
+  const unclickableSeatedBtn = todaySeated || todayRest || schoolStarted;
+  const seatedBtn: HTMLButtonElement | null = document.querySelector("#seated");
+  if (!seatedBtn) return;
+
+  if (unclickableSeatedBtn) seatedBtn.disabled = true;
+  else
+    seatedBtn.onclick = () => {
+      seated();
+      seatedBtn.disabled = true;
+    };
+
+  const restInfo: HTMLElement | null = document.querySelector("#restinfo");
+  if (!restInfo) return;
+  restInfo.innerText = todayRest ? "休日" : "平日";
+}
+
+main();
