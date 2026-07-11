@@ -19,12 +19,21 @@
     <div class="nnose-area">
       <div class="nose-value">NaN瀬</div>
     </div>
-    <div class="info">
-      本日は<span id="restinfo">平日</span>です。<br>
+
+    <div class="main-control">
+      <div class="info">
+        本日は<span id="restinfo">平日</span>です。<br>
+      </div>
+
+
+      <button id="seated">登校しました！</button>
+      <button id="open-settings">設定</button>
+
     </div>
 
-
-    <button id="seated">登校しました！</button>
+    <div id="achievements-wrapper">
+      <div id="achievement-text">実績: n/n</div>
+    </div>
   </div>
 
 
@@ -38,7 +47,7 @@
       <label for="offset">秒</label>
       <div class="reset-buttons">
         <button id="reset-nose">瀬数削除</button>
-        <button id="reset-achievement">実績削除</button>
+        <button id="reset-achievement" style="display: none;">実績削除</button>
       </div>
     </div>
   </div>

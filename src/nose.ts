@@ -1,5 +1,6 @@
 import { TIMEZONE } from "./const";
 import {
+  getConfig,
   getLast,
   getLastSeatSuccessed,
   getNoseCount,
@@ -10,7 +11,7 @@ import {
 import { getDateCode, getTimeZonedDate } from "./util";
 import { RESTDAY_DEFINE } from "./weekend";
 
-const TIMES = {
+export const TIMES = {
   countStart: [8, 30],
   schoolStart: [8, 35],
 } as const;
@@ -22,7 +23,7 @@ const nowNoseInitailize = getNoseCount()
   .then((n) => {
     nowNose = n;
   })
-  .catch(console.error);
+  .catch(() => {});
 const todaySeatedInitailize = getLast()
   .then((last) =>
     getDateCode(last) === getDateCode(new Date())
@@ -38,9 +39,10 @@ const todaySeatedInitailize = getLast()
 export async function calcNowNose() {
   await nowNoseInitailize;
   let nose = nowNose;
+  const config = await getConfig();
 
-  if (isNotSchoolStarted() && !todaySeated) {
-    const now = getTimeZonedDate(TIMEZONE);
+  if ((await isNotSchoolStarted()) && !todaySeated) {
+    const now = getTimeZonedDate(TIMEZONE, config.offset);
 
     const countStart = new Date(
       now.getFullYear(),
@@ -89,8 +91,9 @@ export function isRestDay() {
   );
 }
 
-export function isNotSchoolStarted() {
-  const now = getTimeZonedDate(TIMEZONE);
+export async function isNotSchoolStarted() {
+  const config = await getConfig();
+  const now = getTimeZonedDate(TIMEZONE, config.offset);
   const hour = now.getHours(),
     minute = now.getMinutes();
 

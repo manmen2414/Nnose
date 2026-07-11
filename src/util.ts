@@ -9,7 +9,7 @@ export function getDateCode(date: Date) {
 /**
  * @param timezoneOffset UTC+9 = 9*60 = 540
  */
-export function getTimeZonedDate(timezoneOffset: number) {
+export function getTimeZonedDate(timezoneOffset: number, offset: number = 0) {
   const d = new Date();
   return new Date(
     d.getUTCFullYear(),
@@ -17,7 +17,7 @@ export function getTimeZonedDate(timezoneOffset: number) {
     d.getUTCDate(),
     d.getUTCHours(),
     d.getUTCMinutes() + timezoneOffset,
-    d.getUTCSeconds(),
+    d.getUTCSeconds() + offset,
     d.getUTCMilliseconds(),
   );
 }

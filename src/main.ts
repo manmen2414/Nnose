@@ -1,4 +1,15 @@
-import { dbInit, isNotExistNoseCount, setNoseCount } from "./db";
+import {
+  ACHIEVEMENTS,
+  addClearedAchievementsToHtml,
+  checkAchievements,
+} from "./achievements";
+import {
+  dbInit,
+  getNoseCount,
+  isNotExistConfig,
+  isNotExistNoseCount,
+  setNoseCount,
+} from "./db";
 import {
   addNose,
   calcNowNose,
@@ -8,6 +19,7 @@ import {
   seated,
 } from "./nose";
 import { numbersToKanji } from "./numbersToKanji";
+import { setupSettings } from "./settings";
 import "./style.css";
 
 async function setupPanel() {
@@ -23,10 +35,14 @@ async function setupPanel() {
       const input: HTMLInputElement | null =
         document.querySelector("#nose-input");
       if (!input) return;
-      setNoseCount(parseInt(input.value));
-      location.reload();
+      const nose = parseInt(input.value);
+      setNoseCount(Number.isNaN(nose) ? NaN : nose)
+        .then(() => checkAchievements("nose", nose))
+        .then(() => location.reload());
     };
-    await dbInit();
+    if (await isNotExistConfig()) {
+      await dbInit();
+    }
     return true;
   }
   return false;
@@ -41,6 +57,7 @@ async function tick() {
   );
 
   const nose = await calcNowNose();
+  if (Number.isNaN(nose)) return;
 
   let noseText = `${nose.toFixed(4)}`;
   if (nose % 1 === 0) noseText = numbersToKanji(nose);
@@ -51,42 +68,56 @@ async function tick() {
     v.innerText = noseText;
   });
 
+  checkAchievements("custom", nose);
+
   if (todayRest) return;
 
   const seatedBtn: HTMLButtonElement | null = document.querySelector("#seated");
   if (!seatedBtn) return;
+  const nowSchoolStated = !(await isNotSchoolStarted());
   if (
     // 学校始まってるかつ最後のtickでは学校始まってなかったかつ登校していない場合
-    !isNotSchoolStarted() &&
+    nowSchoolStated &&
     !lastTickSchoolStarted &&
     !(await getTodaySeated())
   ) {
-    addNose().then(() => seated());
+    addNose().then(() => {
+      seated();
+      checkAchievements("nose", nose);
+    });
     seatedBtn.disabled = true;
   }
-  lastTickSchoolStarted = !isNotSchoolStarted();
+  lastTickSchoolStarted = nowSchoolStated;
 }
 
 async function main() {
-  if (await setupPanel()) return;
+  if (await setupPanel()) {
+    return;
+  }
+  setupSettings();
   setInterval(tick);
 
   const todaySeated = await getTodaySeated();
-  const schoolStarted = !isNotSchoolStarted();
+  const schoolStarted = !(await isNotSchoolStarted());
   const unclickableSeatedBtn = todaySeated || todayRest || schoolStarted;
   const seatedBtn: HTMLButtonElement | null = document.querySelector("#seated");
   if (!seatedBtn) return;
 
   if (unclickableSeatedBtn) seatedBtn.disabled = true;
   else
-    seatedBtn.onclick = () => {
+    seatedBtn.onclick = async () => {
       seated();
       seatedBtn.disabled = true;
+
+      const nose = await getNoseCount();
+      checkAchievements("seated", nose);
     };
 
   const restInfo: HTMLElement | null = document.querySelector("#restinfo");
   if (!restInfo) return;
   restInfo.innerText = todayRest ? "休日" : "平日";
+
+  addClearedAchievementsToHtml();
 }
 
 main();

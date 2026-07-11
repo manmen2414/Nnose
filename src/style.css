@@ -8,7 +8,7 @@ h1 {
   position: absolute;
   top: 0px;
   width: 100%;
-  padding: 10px 20px;
+  padding: 10px 0;
   text-align: center;
   background-color: aquamarine;
   font-size: 30px;
@@ -106,6 +106,7 @@ body {
 button {
   cursor: pointer;
   background-color: var(--bg);
+  border-radius: 10px;
 }
 button:hover {
   background-color: color-mix(in oklab, var(--bg) 90%, black 10%);
@@ -146,4 +147,41 @@ button:hover {
 
 button:disabled {
   background-color: #888 !important;
+}
+
+input {
+  max-width: 80%;
+}
+
+.main-control {
+  position: relative;
+  top: 20px;
+}
+
+#achievements-wrapper {
+  position: relative;
+  top: 40px;
+}
+
+#achievement-text {
+}
+
+.achievement {
+  padding: 5px 5px;
+  width: calc(100% - 10px);
+  border: 1px solid #777;
+  border-radius: 20px;
+  text-align: left;
+  display: flex;
+  height: 60px;
+}
+.achievement::before {
+  content: "🏆";
+  font-size: 40px;
+}
+.achievement-title {
+  font-size: 120%;
+}
+.achievement-desc {
+  font-size: 80%;
 }

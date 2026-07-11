@@ -7,6 +7,7 @@ export const ID_NOSE = "nnose-nose";
 export const ID_LAST = "nnose-last";
 export const ID_LAST_SEAT_SUCCESSED = "nnose-last-seat-successed";
 export const ID_CONFIG = "nnose-config";
+export const ID_ACHIEVEMENTS = "nnose-achievements";
 
 export async function getNoseCount(): Promise<number> {
   const nose = await get(ID_NOSE);
@@ -15,7 +16,7 @@ export async function getNoseCount(): Promise<number> {
   return nose;
 }
 
-export async function setNoseCount(nose: number) {
+export async function setNoseCount(nose?: number) {
   return set(ID_NOSE, nose)
     .then((): "stored" => "stored")
     .catch((e): "failed:internalErr" => {
@@ -38,7 +39,7 @@ export async function getLastSeatSuccessed(): Promise<boolean> {
   return successed;
 }
 
-export async function setLastSeatSuccessed(successed: boolean) {
+export async function setLastSeatSuccessed(successed?: boolean) {
   return set(ID_LAST_SEAT_SUCCESSED, successed)
     .then((): "stored" => "stored")
     .catch((e): "failed:internalErr" => {
@@ -61,7 +62,7 @@ export async function getLast(): Promise<Date> {
   return date;
 }
 
-export async function setLast(last: Date) {
+export async function setLast(last?: Date) {
   return set(ID_LAST, last)
     .then((): "stored" => "stored")
     .catch((e): "failed:internalErr" => {
@@ -82,7 +83,7 @@ export async function getConfig(): Promise<Config> {
   return config;
 }
 
-export async function saveConfig(config: Config) {
+export async function saveConfig(config?: Config) {
   return set(ID_CONFIG, config)
     .then((): "stored" => "stored")
     .catch((e): "failed:internalErr" => {
@@ -96,12 +97,35 @@ export async function isNotExistConfig(): Promise<boolean> {
   return config === undefined;
 }
 
+export async function getAchievements(): Promise<string[]> {
+  const achievements = (await get(ID_ACHIEVEMENTS)) ?? {};
+  if (!Array.isArray(achievements))
+    throw new Error(`nnose-achievements is not string list. "${achievements}"`);
+
+  return achievements;
+}
+
+export async function setAchievements(achievements?: string[]) {
+  return set(ID_ACHIEVEMENTS, achievements)
+    .then((): "stored" => "stored")
+    .catch((e): "failed:internalErr" => {
+      console.error(e);
+      return "failed:internalErr";
+    });
+}
+
+export async function isNotExistAchievements(): Promise<boolean> {
+  const achievements = await get(ID_ACHIEVEMENTS);
+  return achievements === undefined;
+}
+
 export async function dbInit() {
   setMany([
     [ID_NOSE, 0],
     [ID_LAST, getTimeZonedDate(TIMEZONE)],
     [ID_LAST_SEAT_SUCCESSED, false],
     [ID_CONFIG, await getConfig()],
+    [ID_ACHIEVEMENTS, []],
   ]);
 }
 
