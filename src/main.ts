@@ -1,5 +1,4 @@
 import {
-  ACHIEVEMENTS,
   addClearedAchievementsToHtml,
   checkAchievements,
 } from "./achievements";

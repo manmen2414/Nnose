@@ -83,7 +83,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     name: "早瀬",
     description: "カウントダウンが始まる前に来るとかすげぇ...",
     type: "seated",
-    func(nose) {
+    func() {
       getConfig().then(({ offset }) => {
         const now = getTimeZonedDate(TIMEZONE, offset);
         const countStart = new Date(

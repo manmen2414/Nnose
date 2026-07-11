@@ -163,9 +163,6 @@ input {
   top: 40px;
 }
 
-#achievement-text {
-}
-
 .achievement {
   padding: 5px 5px;
   width: calc(100% - 10px);
