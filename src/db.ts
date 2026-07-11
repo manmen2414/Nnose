@@ -1,4 +1,4 @@
-import { get, set, setMany } from "idb-keyval";
+import { clear, get, set, setMany } from "idb-keyval";
 import { getTimeZonedDate, isInvalidDate } from "./util";
 import type { Config } from "./types";
 import { TIMEZONE } from "./const";
@@ -117,6 +117,10 @@ export async function setAchievements(achievements?: string[]) {
 export async function isNotExistAchievements(): Promise<boolean> {
   const achievements = await get(ID_ACHIEVEMENTS);
   return achievements === undefined;
+}
+
+export function clearDB() {
+  return clear();
 }
 
 export async function dbInit() {

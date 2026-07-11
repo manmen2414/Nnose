@@ -1,4 +1,4 @@
-import { getConfig, saveConfig, setNoseCount } from "./db";
+import { clearDB, getConfig, saveConfig, setNoseCount } from "./db";
 
 export function setupSettings() {
   const settingsPanel: HTMLDivElement | null =
@@ -22,4 +22,8 @@ export function setupSettings() {
     document.querySelector("#reset-nose");
   if (!resetNose) throw new Error("#reset-nose is not found");
   resetNose.onclick = () => setNoseCount().then(() => location.reload());
+  const resetAll: HTMLButtonElement | null =
+    document.querySelector("#reset-all");
+  if (!resetAll) throw new Error("#reset-all is not found");
+  resetAll.onclick = () => clearDB().then(() => location.reload());
 }
