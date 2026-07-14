@@ -98,7 +98,7 @@ export async function isNotExistConfig(): Promise<boolean> {
 }
 
 export async function getAchievements(): Promise<string[]> {
-  const achievements = (await get(ID_ACHIEVEMENTS)) ?? {};
+  const achievements = (await get(ID_ACHIEVEMENTS)) ?? [];
   if (!Array.isArray(achievements))
     throw new Error(`nnose-achievements is not string list. "${achievements}"`);
 
