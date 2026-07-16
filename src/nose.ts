@@ -1,3 +1,4 @@
+import { checkAchievements } from "./achievements";
 import { TIMEZONE } from "./const";
 import {
   getConfig,
@@ -73,6 +74,9 @@ export async function seated() {
   todaySeated = true;
   await setLastSeatSuccessed(todaySeated);
   await setLast(getTimeZonedDate(TIMEZONE));
+
+  const newNose = await getNoseCount();
+  checkAchievements("nose", newNose);
 }
 export async function getTodaySeated() {
   await todaySeatedInitailize;

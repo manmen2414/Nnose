@@ -1,7 +1,7 @@
 export function getDateCode(date: Date) {
   return parseInt(
     ("" + date.getFullYear()).padStart(4, "0") +
-      ("" + date.getMonth()).padStart(2, "0") +
+      ("" + (date.getMonth() + 1)).padStart(2, "0") +
       ("" + date.getDate()).padStart(2, "0"),
   );
 }

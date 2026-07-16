@@ -82,9 +82,7 @@ async function tick() {
   ) {
     addNose().then(() => {
       seated();
-      checkAchievements("nose", nose);
     });
-    seatedBtn.disabled = true;
   }
   lastTickSchoolStarted = nowSchoolStated;
 }
@@ -105,11 +103,8 @@ async function main() {
   if (unclickableSeatedBtn) seatedBtn.disabled = true;
   else
     seatedBtn.onclick = async () => {
-      seated();
       seatedBtn.disabled = true;
-
-      const nose = await getNoseCount();
-      checkAchievements("seated", nose);
+      seated();
     };
 
   const restInfo: HTMLElement | null = document.querySelector("#restinfo");
