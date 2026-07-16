@@ -4,7 +4,6 @@ import {
 } from "./achievements";
 import {
   dbInit,
-  getNoseCount,
   isNotExistConfig,
   isNotExistNoseCount,
   setNoseCount,
