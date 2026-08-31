@@ -4,4 +4,5 @@
  */
 export const RESTDAY_DEFINE: (number | [number, number])[] = [
   [20260718, 20260831],
+  [20260921, 20260923],
 ];
