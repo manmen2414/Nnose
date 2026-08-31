@@ -80,6 +80,14 @@ export const ACHIEVEMENTS: Achievement[] = [
     },
   },
   {
+    name: "七十七瀬",
+    description: "奇跡の数字",
+    type: "nose",
+    func(nose) {
+      return nose > 76;
+    },
+  },
+  {
     name: "早瀬",
     description: "カウントダウンが始まる前に来るとかすげぇ...",
     type: "seated",
@@ -95,6 +103,67 @@ export const ACHIEVEMENTS: Achievement[] = [
           0,
         );
         if (now < countStart) clearAchievement(this);
+      });
+      return false;
+    },
+  },
+  {
+    name: "運瀬",
+    description: "9/1の深夜2時に実装した謎実績。着席時5%の確率で達成される。",
+    type: "seated",
+    func() {
+      return Math.random() < 0.05;
+    },
+  },
+  {
+    name: "ギリギリセーフ",
+    description: "残り10秒以内に着席する",
+    type: "seated",
+    func() {
+      getConfig().then(({ offset }) => {
+        const now = getTimeZonedDate(TIMEZONE, offset);
+        const nowValue = now.valueOf();
+        const start = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          ...TIMES.schoolStart,
+          -10,
+        ).valueOf();
+        const end = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          ...TIMES.schoolStart,
+          0,
+        ).valueOf();
+        if (start < nowValue && nowValue < end) clearAchievement(this);
+      });
+      return false;
+    },
+  },
+  {
+    name: "ギリギリセーフ...?",
+    description: "チャイム後10秒以内に着席する",
+    type: "seated",
+    func() {
+      getConfig().then(({ offset }) => {
+        const now = getTimeZonedDate(TIMEZONE, offset);
+        const nowValue = now.valueOf();
+        const start = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          ...TIMES.schoolStart,
+        ).valueOf();
+        const end = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          ...TIMES.schoolStart,
+          10,
+        ).valueOf();
+        if (start < nowValue && nowValue < end) clearAchievement(this);
       });
       return false;
     },
