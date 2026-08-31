@@ -17,7 +17,7 @@ export interface Achievement {
    * custom: 毎処理呼ばれる
    */
   type: "nose" | "seated" | "custom";
-  func: (nose: number) => boolean;
+  func: (nose: number) => boolean | Promise<boolean>;
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
@@ -91,20 +91,18 @@ export const ACHIEVEMENTS: Achievement[] = [
     name: "早瀬",
     description: "カウントダウンが始まる前に来るとかすげぇ...",
     type: "seated",
-    func() {
-      getConfig().then(({ offset }) => {
-        const now = getTimeZonedDate(TIMEZONE, offset);
-        const countStart = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          ...TIMES.countStart,
-          0,
-          0,
-        );
-        if (now < countStart) clearAchievement(this);
-      });
-      return false;
+    async func() {
+      const { offset } = await getConfig();
+      const now = getTimeZonedDate(TIMEZONE, offset);
+      const countStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        ...TIMES.countStart,
+        0,
+        0,
+      );
+      return now < countStart;
     },
   },
   {
@@ -119,53 +117,48 @@ export const ACHIEVEMENTS: Achievement[] = [
     name: "ギリギリセーフ",
     description: "残り10秒以内に着席する",
     type: "seated",
-    func() {
-      getConfig().then(({ offset }) => {
-        const now = getTimeZonedDate(TIMEZONE, offset);
-        const nowValue = now.valueOf();
-        const start = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          ...TIMES.schoolStart,
-          -10,
-        ).valueOf();
-        const end = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          ...TIMES.schoolStart,
-          0,
-        ).valueOf();
-        if (start < nowValue && nowValue < end) clearAchievement(this);
-      });
-      return false;
+    async func() {
+      const { offset } = await getConfig();
+      const now = getTimeZonedDate(TIMEZONE, offset);
+      const nowValue = now.valueOf();
+      const start = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        ...TIMES.schoolStart,
+        -10,
+      ).valueOf();
+      const end = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        ...TIMES.schoolStart,
+      ).valueOf();
+      return start < nowValue && nowValue < end;
     },
   },
   {
     name: "ギリギリセーフ...?",
     description: "チャイム後10秒以内に着席する",
     type: "seated",
-    func() {
-      getConfig().then(({ offset }) => {
-        const now = getTimeZonedDate(TIMEZONE, offset);
-        const nowValue = now.valueOf();
-        const start = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          ...TIMES.schoolStart,
-        ).valueOf();
-        const end = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          ...TIMES.schoolStart,
-          10,
-        ).valueOf();
-        if (start < nowValue && nowValue < end) clearAchievement(this);
-      });
-      return false;
+    async func() {
+      const { offset } = await getConfig();
+      const now = getTimeZonedDate(TIMEZONE, offset);
+      const nowValue = now.valueOf();
+      const start = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        ...TIMES.schoolStart,
+      ).valueOf();
+      const end = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        ...TIMES.schoolStart,
+        10,
+      ).valueOf();
+      return start < nowValue && nowValue < end;
     },
   },
 ] as const;
@@ -185,13 +178,15 @@ const genredAchievements = {
   nose: ACHIEVEMENTS.filter((v) => v.type === "nose"),
   seated: ACHIEVEMENTS.filter((v) => v.type === "seated"),
 };
-export function checkAchievements(
+export async function checkAchievements(
   type: "custom" | "nose" | "seated",
   nose: number,
 ) {
-  return Promise.all(
-    genredAchievements[type].filter((v) => v.func(nose)).map(clearAchievement),
-  );
+  for (const achi of genredAchievements[type]) {
+    const result = await achi.func(nose);
+    if (!result) continue;
+    await clearAchievement(achi);
+  }
 }
 
 export async function addClearedAchievementsToHtml() {
