@@ -76,7 +76,7 @@ export async function seated() {
   await setLast(getTimeZonedDate(TIMEZONE));
 
   const newNose = await getNoseCount();
-  checkAchievements("nose", newNose);
+  checkAchievements("seated", newNose);
 }
 export async function getTodaySeated() {
   await todaySeatedInitailize;
