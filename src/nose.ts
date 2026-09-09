@@ -84,6 +84,7 @@ export async function getTodaySeated() {
 }
 export async function addNose() {
   await setNoseCount(++nowNose);
+  checkAchievements("nose", nowNose)
 }
 
 export function isRestDay() {
